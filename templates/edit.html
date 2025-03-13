@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head><title>Edit Extracted Text</title></head>
+<body>
+    <h2>Edit Extracted Medicine Names</h2>
+    <form action="/" method="post">
+        <img src="{{ image_path }}" width="300"><br><br>
+        {% for text in extracted_text %}
+            <input type="text" name="corrected_text" value="{{ text }}"><br>
+        {% endfor %}
+        <button type="submit">Save</button>
+    </form>
+</body>
+</html>
