@@ -48,45 +48,42 @@ const MedicineDetection = () => {
   };
 
   // Update medicine name
-  const handleUpdateName = async () => {
-    if (!detection || !newName) {
-      setStatusMessage("Please enter a new medicine name.");
-      return;
-    }
+  // Update medicine name
+const handleUpdateName = async () => {
+  if (!detection || !newName) {
+    setStatusMessage("Please enter a new medicine name.");
+    return;
+  }
 
-    try {
-      const response = await axios.put(`${API_BASE_URL}/update-medicine-name`, {
-        detection_id: detection.detection_id,
-        new_name: newName,
+  try {
+    setStatusMessage("Updating medicine information...");
+    
+    const response = await axios.put(`${API_BASE_URL}/update-medicine-name`, {
+      detection_id: detection.detection_id,
+      new_name: newName,
+    });
+
+    console.log("Update response:", response.data); // Debug log
+    
+    if (response.data.success) {
+      // Update the entire detection object with all the new data
+      setDetection({
+        ...detection,
+        medicine_name: newName,
+        composition: response.data.composition,
+        side_effects: response.data.side_effects,
+        uses: response.data.uses,
+        is_authentic: response.data.is_authentic
       });
-
-      if (response.data.success) {
-        // Update local state with new medicine name
-        setDetection({ ...detection, medicine_name: newName });
-        setStatusMessage("Medicine name updated successfully.");
-        
-        // After updating name, fetch new composition and side effects
-        const compositionResponse = await axios.get(
-          `${API_BASE_URL}/get-medicine-info?medicine_name=${encodeURIComponent(newName)}`
-        );
-        
-        if (compositionResponse.data) {
-          setDetection({
-            ...detection,
-            medicine_name: newName,
-            composition: compositionResponse.data.composition,
-            side_effects: compositionResponse.data.side_effects,
-          });
-        }
-        
-        setNewName("");
-      }
-    } catch (error) {
-      setStatusMessage("Failed to update medicine name.");
-      console.error(error);
+      
+      setStatusMessage("Medicine name updated successfully.");
+      setNewName("");
     }
-  };
-
+  } catch (error) {
+    setStatusMessage("Failed to update medicine name.");
+    console.error(error);
+  }
+};
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
       <h1 className="text-3xl font-semibold text-center text-gray-700 mb-6">
@@ -122,9 +119,19 @@ const MedicineDetection = () => {
         <div className="p-4 border border-gray-200 rounded-lg shadow-sm bg-gray-50">
           <h2 className="text-2xl font-semibold text-gray-700 mb-4">Detection Result</h2>
           <p className="font-medium text-gray-800">Medicine: {detection.medicine_name || "N/A"}</p>
-          <p className="text-gray-600">Composition: {detection.composition || "Unknown"}</p>
-          <p className="text-gray-600">Side Effects: {detection.side_effects || "Not Available"}</p>
-          <p className={`text-lg font-bold ${detection.is_authentic ? "text-green-600" : "text-red-600"}`}>
+          
+          {/* Add Uses section */}
+          <div className="mt-2">
+            <p className="font-medium text-gray-700">Uses:</p>
+            <p className="text-gray-600">{detection.uses || "Not Available"}</p>
+          </div>
+          
+          <div className="mt-2">
+            <p className="font-medium text-gray-700">Side Effects:</p>
+            <p className="text-gray-600">{detection.side_effects || "Not Available"}</p>
+          </div>
+          
+          <p className={`mt-3 text-lg font-bold ${detection.is_authentic ? "text-green-600" : "text-red-600"}`}>
             {detection.is_authentic ? "Authentic Drug ✅" : "Counterfeit Drug ❌"}
           </p>
 
